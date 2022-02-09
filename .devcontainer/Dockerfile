@@ -1,5 +1,11 @@
 FROM ruby:2.2.4
 
+# Shush apt-get warnings
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Shush "missing locale" warnings
+ENV LOCALE=C
+
 ARG USERNAME=developer
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
@@ -21,3 +27,7 @@ COPY .devcontainer/rubygemsorg-load-profile.sh /etc/profile.d/
 
 # TODO consolidate package installs once they are stable
 RUN apt-get install -y nodejs
+RUN apt-get install -y silversearcher-ag
+
+# Turn interactive prompts back on for apt-get
+ENV DEBIAN_FRONTEND=dialog
