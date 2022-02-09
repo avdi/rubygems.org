@@ -18,3 +18,6 @@ RUN groupadd --gid ${USER_GID} ${USERNAME} \
   && chmod 0440 /etc/sudoers.d/${USERNAME}
 
 COPY .devcontainer/rubygemsorg-load-profile.sh /etc/profile.d/
+
+# TODO consolidate package installs once they are stable
+RUN apt-get install -y nodejs
