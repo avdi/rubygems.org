@@ -16,7 +16,8 @@
         "port": 5432,
         // update this to match config/database.yml
         "database": "gemcutter_development",
-        "username": "postgres"
+        "username": "postgres",
+        "password": "postgres"
       },
       {
         "name": "Rails Test Database",
@@ -26,7 +27,8 @@
         "port": 5432,
         // update this to match config/database.yml
         "database": "gemcutter_test",
-        "username": "postgres"
+        "username": "postgres",
+        "password": "postgres"
       }
     ],
     "terminal.integrated.shellArgs.linux": [
