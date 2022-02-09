@@ -1,62 +1,114 @@
-# [Choice] Ruby version (use -bullseye variants on local arm64/Apple Silicon): 3, 3.1, 3.0, 2, 2.7, 2.6, 3-bullseye, 3.1-bullseye, 3.0-bullseye, 2-bullseye, 2.7-bullseye, 2.6-bullseye, 3-buster, 3.1-buster, 3.0-buster, 2-buster, 2.7-buster, 2.6-buster
-ARG VARIANT=2-bullseye
-FROM ruby:${VARIANT}
+# This should be kept consistent with .ruby-version
+ARG RUBY_VERSION=2.2.4
 
-# Copy library scripts to execute
-COPY .devcontainer/library-scripts/*.sh .devcontainer/library-scripts/*.env /tmp/library-scripts/
+FROM ruby:${RUBY_VERSION}
 
-# [Option] Install zsh
-ARG INSTALL_ZSH="true"
-# [Option] Upgrade OS packages to their latest versions
-ARG UPGRADE_PACKAGES="true"
-# Install needed packages and setup non-root user. Use a separate RUN statement to add your own dependencies.
-ARG USERNAME=vscode
+ARG USERNAME=developer
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-  # Install common packages, non-root user, rvm, core build tools
-  && bash /tmp/library-scripts/common-debian.sh "${INSTALL_ZSH}" "${USERNAME}" "${USER_UID}" "${USER_GID}" "${UPGRADE_PACKAGES}" "true" "true" \
-  && bash /tmp/library-scripts/ruby-debian.sh "none" "${USERNAME}" "true" "true" \
-  && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
-# [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
-ARG NODE_VERSION="none"
-ENV NVM_DIR=/usr/local/share/nvm
-ENV NVM_SYMLINK_CURRENT=true \
-  PATH=${NVM_DIR}/current/bin:${PATH}
-RUN bash /tmp/library-scripts/node-debian.sh "${NVM_DIR}" "${NODE_VERSION}" "${USERNAME}" \
-  && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive  
 
-# Remove library scripts for final image
-RUN rm -rf /tmp/library-scripts
+# Install system packages. 
+RUN apt-get update \
+  # Install packages needed to install new package sources
+  && apt-get install -y --no-install-recommends \
+  wget gnupg gnupg2 software-properties-common \
+  # Refresh package lists
+  && apt-get update \
+  && apt-get -y install --no-install-recommends \
+  # Tools for adding extra package repos
+  apt-transport-https \
+  # Tools for adding extra package repos
+  apt-utils \
+  # Bash shell autocompletion for various commands
+  bash-completion \
+  # Basic compile toolkit (GCC, Make, etc.)
+  build-essential \
+  # Compression utility
+  bzip2 \
+  # Certs needed to establish secure SSL/TLS connections
+  ca-certificates \
+  # Enable admin tools to present console "GUIs"
+  dialog \
+  # Util to identify file types
+  file \
+  # Version control
+  git \
+  # Diagramming/visualization tool
+  graphviz \
+  # Interactive process manager
+  htop \
+  # provides ifconfig, netstat, etc.
+  iproute2 \
+  # the `ping` command
+  iputils-ping \
+  # Util for querying JSON data
+  jq \
+  # Console text viewer
+  less \
+  # Postgres client library, needed for Ruby Postgres bindings
+  libpq-dev \
+  # Needed to compile Ruby
+  libreadline-dev \
+  # SQLite client libraries, needed to compile SQLite gem
+  libsqlite3-dev \ 
+  # SSL library needed to compile Ruby
+  libssl-dev \
+  # XML libs needed for Nokogiri
+  libxml2 \
+  # Localization data (avoids annoying missing-locale warnings)
+  locales \
+  # Indexed file search utility 
+  locate \
+  # Tool to query details about the OS
+  lsb-release \
+  # Library tracing tool
+  ltrace \
+  # SSH secure shell
+  openssh-client \
+  # Needed by libpq
+  postgresql-client \
+  # CLI tools for interacting with Redis
+  redis-tools \
+  # MIME file type sniffing database used by mimemagic gem (which is used by ActiveStorage)
+  shared-mime-info \
+  # SQLite database
+  sqlite \
+  # System call tracing tool
+  strace \
+  # Execute commands as root
+  sudo \
+  # Pretty directory listings
+  tree \
+  # Time zone data
+  tzdata \
+  # Text editor
+  vim \
+  # Repeatedly run a command and watch for output changes
+  watch \
+  # File download utility
+  wget \
+  # Compression libs. Needed to compile Ruby.
+  zlib1g-dev \
+  # Z Shell. Alternative to Bash.
+  zsh \
+  # Set the locale
+  && localedef -i en_US -f UTF-8 en_US.UTF-8 \
+  # Add non-root user
+  && groupadd --gid $USER_GID $USERNAME \
+  && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
+  # Give sudo access to non-root user. This must happen AFTER installing sudo.
+  && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME\
+  && chmod 0440 /etc/sudoers.d/$USERNAME \
+  # Clean up to slim down the layer
+  && apt-get autoremove -y \
+  && apt-get clean -y \
+  && rm -rf /var/lib/apt/lists/*
 
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
+# Switch back to dialog for any ad-hoc use of apt-get
+ENV DEBIAN_FRONTEND=dialog
 
-# [Optional] Uncomment this line to install additional gems.
-# RUN gem install <your-gem-names-here>
-
-# [Optional] Uncomment this line to install global node packages.
-# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
-
-# Install Rails
-RUN gem install rails webdrivers 
-
-# Default value to allow debug server to serve content over GitHub Codespace's port forwarding service
-# The value is a comma-separated list of allowed domains 
-ENV RAILS_DEVELOPMENT_HOSTS=".githubpreview.dev"
-
-# [Choice] Node.js version: lts/*, 16, 14, 12, 10
-ARG NODE_VERSION="lts/*"
-RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && nvm install ${NODE_VERSION} 2>&1"
-
-# [Optional] Uncomment this section to install additional OS packages.
-# RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-#     && apt-get -y install --no-install-recommends <your-package-list-here>
-
-# [Optional] Uncomment this line to install additional gems.
-# RUN gem install <your-gem-names-here>
-
-# [Optional] Uncomment this line to install global node packages.
-# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
+USER ${USERNAME}
+WORKDIR /home/${USERNAME}
