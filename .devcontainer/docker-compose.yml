@@ -16,6 +16,7 @@ services:
     working_dir: /workspace
     environment:
       BUNDLE_PATH: vendor/bundle
+      ELASTICSEARCH_URL: http://elasticsearch:9200
 
   db:
     image: postgres:9
@@ -32,6 +33,16 @@ services:
         # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
         # (Adding the "ports" property to this file will not forward from a Codespace.)
 
+  elasticsearch:
+    image: elasticsearch:1.5.2
+    restart: unless-stopped
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
 volumes:
   postgres-data:
+  elasticsearch-data:
   devcache:
