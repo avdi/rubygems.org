@@ -5,4 +5,4 @@ if [ -e ${project_root}/.env ]; then
 fi
 export COMPOSE_FILE=${COMPOSE_FILE:-${project_root}/.devcontainer/docker-compose.yml}
 export COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-rubygems}
-docker-compose up -d && docker-compose exec app /bin/bash -l "$@"
+docker-compose up -d && docker-compose exec app /workspace/.devcontainer/shell.sh "$@"
