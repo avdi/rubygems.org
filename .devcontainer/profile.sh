@@ -5,3 +5,7 @@ if [ -r /workspace/.env ]; then
 else
   echo "You might want to `cp .env.example .env` and customize"
 fi
+
+alias be="bundle exec"
+
+export PATH=$PATH:/workspace/bin
