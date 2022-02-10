@@ -55,6 +55,8 @@ end
 group :development do
   gem 'quiet_assets'
   gem 'rails-erd'
+  gem 'faker', '1.9.1'
+  gem 'spicy-proton'
 end
 
 group :test do
