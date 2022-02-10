@@ -28,6 +28,7 @@ COPY .devcontainer/rubygemsorg-load-profile.sh /etc/profile.d/
 # TODO consolidate package installs once they are stable
 RUN apt-get install -y nodejs
 RUN apt-get install -y silversearcher-ag
+RUN apt-get install -y postgresql-client
 
 # Turn interactive prompts back on for apt-get
 ENV DEBIAN_FRONTEND=dialog

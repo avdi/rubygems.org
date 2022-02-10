@@ -17,6 +17,9 @@ services:
     environment:
       BUNDLE_PATH: vendor/bundle
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      PGHOST: db
+      PGUSER: postgres
+      PGPASSWORD: postgres
 
   db:
     image: postgres:9
