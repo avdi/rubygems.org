@@ -28,7 +28,7 @@ def generate_fake_gem
       handle: Faker::Internet.unique.username.tr_s("^a-zA-Z0-0_-", "_"))
   end
   FactoryGirl.create(:rubygem,
-    name: Spicy::Proton.pair,
+    name: Spicy::Proton.format('%a-%a-%n'),
     owners: owners) do |rubygem|
     rand(1..100).times do
       FactoryGirl.create(:version,
