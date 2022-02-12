@@ -26,7 +26,7 @@ def generate_fake_gem(reuse_owners: false)
     FactoryGirl.create(:rubygem,
       name: Spicy::Proton.format('%a-%a-%n'),
       owners: reuse_owners ? find_some_randome_fake_gem_owners : generate_some_fake_gem_owners) do |rubygem|
-      rand(1..100).times do
+      rand(1..10).times do
         FactoryGirl.create(:version,
           rubygem: rubygem,
           authors: [Faker::Name.name],
