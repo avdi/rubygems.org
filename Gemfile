@@ -46,6 +46,9 @@ gem 'elasticsearch-rails', '~> 0.1.7'
 gem 'elasticsearch-dsl', '~> 0.1.2'
 gem 'xml-simple'
 gem 'yajl-ruby', require: 'yajl'
+gem 'rack-mini-profiler', '1.0.0'
+gem 'stackprof'
+gem 'flamegraph'
 
 group :development, :test do
   gem 'rubocop', require: false
