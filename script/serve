@@ -1,0 +1,2 @@
+#!/bin/bash
+exec `dirname ${BASH_SOURCE[0]}`/../bin/rails server -b 0.0.0.0
